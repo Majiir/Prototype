@@ -5,11 +5,17 @@
 	  	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 	  	<script>
 	  	$(function() {
-	  		$('.pipe').draggable({ revert: true });
+			$('.pipe').draggable({ revert: 'invalid' });
 
 	  		$('.slot').droppable({
 				drop: function( event, ui ) {
-					$(this).addClass('filled');
+					var pipe = ui.draggable;
+					$(this).replaceWith(pipe);
+					pipe.draggable('destroy');
+					pipe.css({ 'position': '', 'left': '', 'top': '' });
+
+					pipe = $('<div class="pipe"></div>');
+					$('#queue').prepend(pipe);
 				}
 			});
 	  	});
