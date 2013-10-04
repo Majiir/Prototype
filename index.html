@@ -5,7 +5,10 @@
 	  	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 	  	<script>
 	  	$(function() {
-			$('.pipe').draggable({ revert: 'invalid' });
+			for (var i = 0; i < 6; i++) {
+				var pipe = $('<div class="pipe"></div>').draggable({ revert: 'invalid' });
+				$('#queue').prepend(pipe);
+			}
 
 	  		$('.slot').droppable({
 				drop: function( event, ui ) {
@@ -84,26 +87,6 @@
 	</head>
 	<body>
 		<div id="queue">
-			<div class="grid">
-				<div class="row">
-					<div class="pipe"></div>
-				</div>
-				<div class="row">
-					<div class="pipe"></div>
-				</div>
-				<div class="row">
-					<div class="pipe"></div>
-				</div>
-				<div class="row">
-					<div class="pipe"></div>
-				</div>
-				<div class="row">
-					<div class="pipe"></div>
-				</div>
-				<div class="row">
-					<div class="pipe"></div>
-				</div>
-			</div>
 		</div>
 		<div id="board">
 			<div class="grid">
