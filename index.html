@@ -9,6 +9,10 @@
 
 	  		$('.slot').droppable({
 				drop: function( event, ui ) {
+					var index = $(this).index();
+					$('#board .row').each(function() { $(this).children().eq(index).removeClass('over'); });
+					$(this).siblings().each(function() { $(this).removeClass('over'); });
+
 					var pipe = ui.draggable;
 					$(this).replaceWith(pipe);
 					pipe.draggable('destroy');
@@ -18,10 +22,14 @@
 					$('#queue').prepend(pipe);
 				},
 				over: function( event, ui ) {
-					$(this).addClass('over');
+					var index = $(this).index();
+					$('#board .row').each(function() { $(this).children().eq(index).addClass('over'); });
+					$(this).siblings().each(function() { $(this).addClass('over'); });
 				},
 				out: function( event, ui ) {
-					$(this).removeClass('over');
+					var index = $(this).index();
+					$('#board .row').each(function() { $(this).children().eq(index).removeClass('over'); });
+					$(this).siblings().each(function() { $(this).removeClass('over'); });
 				}
 			});
 	  	});
