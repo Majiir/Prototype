@@ -23,6 +23,7 @@
 
 					pipe = $('<div class="pipe"></div>');
 					$('#queue').prepend(pipe);
+					pipe.draggable({ revert: 'invalid' });
 				},
 				over: function( event, ui ) {
 					var index = $(this).index();
