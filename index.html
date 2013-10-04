@@ -16,6 +16,12 @@
 
 					pipe = $('<div class="pipe"></div>');
 					$('#queue').prepend(pipe);
+				},
+				over: function( event, ui ) {
+					$(this).addClass('over');
+				},
+				out: function( event, ui ) {
+					$(this).removeClass('over');
 				}
 			});
 	  	});
@@ -61,6 +67,10 @@
 
 			.slot.filled {
 				background-color: #ccc;
+			}
+
+			.slot.over {
+				background-color: #fcc;
 			}
 		</style>
 	</head>
