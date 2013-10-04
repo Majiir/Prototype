@@ -24,6 +24,7 @@
 					pipe = $('<div class="pipe"></div>');
 					$('#queue').prepend(pipe);
 					pipe.draggable({ revert: 'invalid' });
+					pipe.hide().slideDown();
 				},
 				over: function( event, ui ) {
 					var index = $(this).index();
