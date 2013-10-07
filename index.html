@@ -6,8 +6,13 @@
 	  	<script>
 	  	$(function() {
 			for (var i = 0; i < 6; i++) {
+				var pipe = makePipe();
+			}
+
+			function makePipe () {
 				var pipe = $('<div class="pipe"></div>').draggable({ revert: 'invalid' });
 				$('#queue').prepend(pipe);
+				return pipe;
 			}
 
 	  		$('.slot').droppable({
@@ -21,9 +26,7 @@
 					pipe.draggable('destroy');
 					pipe.css({ 'position': '', 'left': '', 'top': '' });
 
-					pipe = $('<div class="pipe"></div>');
-					$('#queue').prepend(pipe);
-					pipe.draggable({ revert: 'invalid' });
+					pipe = makePipe();
 					pipe.hide().slideDown();
 				},
 				over: function( event, ui ) {
