@@ -33,6 +33,22 @@
 				return pipe;
 			}
 
+			function getRight (pipe) {
+				return pipe.next();
+			};
+
+			function getLeft (pipe) {
+				return pipe.prev();
+			};
+
+			function getTop (pipe) {
+				return pipe.parent().prev().children().eq(pipe.index());
+			};
+
+			function getBottom (pipe) {
+				return pipe.parent().next().children().eq(pipe.index());
+			};			
+
 	  		$('.slot').droppable({
 				drop: function( event, ui ) {
 					var index = $(this).index();
