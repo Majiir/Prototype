@@ -34,19 +34,19 @@
 			}
 
 			function getRight (pipe) {
-				return pipe.next();
+				return pipe.next('.pipe');
 			};
 
 			function getLeft (pipe) {
-				return pipe.prev();
+				return pipe.prev('.pipe');
 			};
 
 			function getTop (pipe) {
-				return pipe.parent().prev().children().eq(pipe.index());
+				return pipe.parent().prev().children().eq(pipe.index()).filter('.pipe');
 			};
 
 			function getBottom (pipe) {
-				return pipe.parent().next().children().eq(pipe.index());
+				return pipe.parent().next().children().eq(pipe.index()).filter('.pipe');
 			};			
 
 	  		$('.slot').droppable({
