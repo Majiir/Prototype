@@ -88,7 +88,7 @@
 			var fps = 30;
 
 			function update() {
-				var next = $('#board .row .pipe').first();
+				var next = $('#board .row').first().children().first().filter('.pipe');
 				var direction = 'e';
 
 				while (next.length > 0) {
