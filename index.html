@@ -94,6 +94,12 @@
 				while (next.length > 0) {
 					next.css({ 'background-color': 'lightblue' });
 
+					var flow = parseFloat(next.attr('data-flow') || 0);
+					flow = Math.min(flow + (0.3 / fps), 1);
+					next.attr('data-flow', flow);
+
+					if (flow < 1) { return; }
+
 					var id = next.attr('data-pipeType');
 
 					if (direction in connections[id]) {
@@ -103,7 +109,7 @@
 						else if (direction == 's') { next = getBottom(next); }
 						else if (direction == 'w') { next = getLeft(next); }
 					} else {
-						next = $();
+						return;
 					}
 				}
 			};
