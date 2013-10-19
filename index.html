@@ -74,6 +74,9 @@
 					$(this).siblings().each(function() { $(this).removeClass('over'); });
 
 					var pipe = ui.draggable;
+					if(this.classList.contains('star')){
+						pipe.addClass('star');
+					}
 					$(this).replaceWith(pipe);
 					pipe.draggable('destroy');
 					pipe.css({ 'position': '', 'left': '', 'top': '' });
@@ -158,6 +161,10 @@
 				background-color: #caa;
 			}
 
+			.slot.star {
+				background-color: yellow;
+			}
+
 			.grid .row {
 				clear: left;
 			}
@@ -199,7 +206,7 @@
 		<div id="board">
 			<div class="grid">
 				<div class="row">
-					<div class="slot"></div>
+					<div class="slot star"></div>
 					<div class="slot"></div>
 					<div class="slot"></div>
 					<div class="slot"></div>
