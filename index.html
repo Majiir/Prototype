@@ -252,13 +252,13 @@
 				while (next.length > 0) {
 					var id = next.attr('data-pipeType');
 					if (direction in connections[id]) {
-					var flow = parseFloat(next.attr('data-flow-' + direction) || 0);
-					flow = Math.min(flow + (0.3 / fps), 1);
-					next.attr('data-flow-' + direction, flow);
+						var flow = parseFloat(next.attr('data-flow-' + direction) || 0);
+						flow = Math.min(flow + (0.3 / fps), 1);
+						next.attr('data-flow-' + direction, flow);
 
 						var ns = ['n', 's'].indexOf(direction) > -1;
 						var both = ((next.attr('data-flow-' + (ns ? 'e' : 'n')) == 1)
-						 || (next.attr('data-flow-' + (ns ? 'w' : 's')) == 1));
+								 || (next.attr('data-flow-' + (ns ? 'w' : 's')) == 1));
 
 						next.css({ 'background-image': 'url("images/' + images[id]['flow'][direction + (both ? 'b' : '')][Math.min(3, Math.floor(flow * 4))] + '")' });
 						if (flow < 1) { return; }
