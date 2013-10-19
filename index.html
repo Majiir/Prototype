@@ -197,19 +197,19 @@
 			};
 
 			function getRight (pipe) {
-				return pipe.next('.pipe');
+				return pipe.next('.pipe, .end, .start, .slot');
 			};
 
 			function getLeft (pipe) {
-				return pipe.prev('.pipe');
+				return pipe.prev('.pipe, .end, .start, .slot');
 			};
 
 			function getTop (pipe) {
-				return pipe.parent().prev().children().eq(pipe.index()).filter('.pipe');
+				return pipe.parent().prev().children().eq(pipe.index()).filter('.pipe, .end, .start, .slot');
 			};
 
 			function getBottom (pipe) {
-				return pipe.parent().next().children().eq(pipe.index()).filter('.pipe');
+				return pipe.parent().next().children().eq(pipe.index()).filter('.pipe, .end, .start, .slot');
 			};			
 
 	  		$('.slot').droppable({
@@ -230,6 +230,7 @@
 					pipe.hide().slideDown();
 
 					displayScore();
+					start();
 				},
 				over: function( event, ui ) {
 					var index = $(this).index();
@@ -246,10 +247,10 @@
 			var fps = 30;
 
 			function update() {
-				var next = $('#board .row').first().children().first().filter('.pipe');
+				var next = getRight($('#board .row .start').first());
 				var direction = 'e';
 
-				while (next.length > 0) {
+				while (next.is('.pipe')) {
 					var id = next.attr('data-pipeType');
 					if (direction in connections[id]) {
 						var flow = parseFloat(next.attr('data-flow-' + direction) || 0);
@@ -269,12 +270,43 @@
 						else if (direction == 's') { next = getBottom(next); }
 						else if (direction == 'w') { next = getLeft(next); }
 					} else {
+						defeat();
 						return;
 					}
 				}
+
+				if (next.is('.slot')) {
+					next.addClass('spill');
+					defeat();
+				} else if (next.is('.end') && direction == 's') {
+					next.addClass('done');
+					victory();
+				} else {
+					defeat();
+				}
+
 			};
 
-			setInterval(update, 1000 / fps);
+			function victory() {
+				stop();
+				alert('You win!');
+			}
+
+			function defeat() {
+				stop();
+				alert('You lose!');
+			}
+
+			var updateId = -1;
+			function start() {
+				if (updateId == -1) {
+					updateId = setInterval(update, 1000 / fps);
+				}
+			}
+
+			function stop() {
+				clearInterval(updateId);
+			}
 	  	});
 	  	</script>
 		<style>
@@ -318,16 +350,34 @@
 
 			.grid .row .pipe,
 			.grid .row .slot,
+			.grid .row .start,
+			.grid .row .end,
 			.grid .row .empty {
 				float: left;
 			}
 
-			.pipe, .slot, .empty {
+			.pipe, .slot, .empty, .start, .end {
 				height: 80px;
 				width: 80px;
 				margin-left: 5px;
 				margin-top: 5px;
 				background-size: 80px 80px;
+			}
+
+			.start {
+				background-image: url('images/Start Flow Right.png');
+			}
+
+			.end {
+				background-image: url('images/End Flow Down.png');
+			}
+
+			.end.done {
+				background-image: url('images/Start Flow Up.png');
+			}
+
+			.slot.spill {
+				background-image: url('images/waterbase.png');
 			}
 
 			.pipe {
