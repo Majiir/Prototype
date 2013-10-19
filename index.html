@@ -107,9 +107,9 @@
 				while (next.length > 0) {
 					next.css({ 'background-color': 'lightblue' });
 
-					var flow = parseFloat(next.attr('data-flow') || 0);
+					var flow = parseFloat(next.attr('data-flow-' + direction) || 0);
 					flow = Math.min(flow + (0.3 / fps), 1);
-					next.attr('data-flow', flow);
+					next.attr('data-flow-' + direction, flow);
 
 					if (flow < 1) { return; }
 
