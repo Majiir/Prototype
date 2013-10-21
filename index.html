@@ -164,7 +164,19 @@
 				},
 			};
 
-			var points = 0;
+			//level dependent
+			var baseScore = 100;
+			var scoreMultiplier = 2;
+			var totalSquares = 46;
+
+			//not level dependent
+			var tilesPlaced = 0;
+
+			var points = baseScore*scoreMultiplier;
+
+			var boomstate = false;
+
+			var freeze = false;
 
 			for (var i = 0; i < 6; i++) {
 				var pipe = makePipe();
@@ -175,12 +187,85 @@
 				$('#score').text("score: " + points);
 			}
 
+			function calculateScore() {
+				var riverLength = lengthOfRiverbed();
+				var unusedTiles = tilesPlaced - riverLength;
+
+				points = points - unusedTiles*500 + baseScore;
+
+				points = points*(scoreMultiplier + ((20 < riverLength*100/totalSquares) ? 10 : 0));
+
+				displayScore();
+			}
+
+			function lengthOfRiverbed() {
+
+				var next = getRight($('#board .row .start').first());
+				var length = 0;
+				var direction = 'e';
+				var currentPoints = 0;
+
+				points = 0;
+
+				while (next.is('.pipe')) {
+					var id = next.attr('data-pipeType');
+					if (direction in connections[id]) {
+
+						var ns = ['n', 's'].indexOf(direction) > -1;
+						var both = ((next.attr('data-flow-' + (ns ? 'e' : 'n')) == 1)
+								 || (next.attr('data-flow-' + (ns ? 'w' : 's')) == 1));
+
+						direction = connections[id][direction];
+						if (direction == 'n') { next = getTop(next); }
+						else if (direction == 'e') { next = getRight(next); }
+						else if (direction == 's') { next = getBottom(next); }
+						else if (direction == 'w') { next = getLeft(next); }
+					} else {
+						break;
+					}
+					length++;
+					if(next.hasClass('star')){
+						points += 1500;
+					}
+					else{
+						points += 1000;
+					}
+				}
+
+				return length;
+			}
+
+			function freezePU () {
+				freeze = true;
+				setTimeout(unfreeze,15*1000); //15 seconds
+			}
+
+			function unfreeze() {
+				$('#queue .pipe').each(function() {
+					$(this).css({"opacity": 1});
+				});
+				freeze = false;
+			}
+
+			function reQ () {
+				$('#queue .pipe').each(function() {
+					$(this).remove();
+				});
+
+				for (var i = 0; i < 6; i++)
+					makePipe();
+			}
+
 			function makePipe () {
 				var id = Math.floor(Math.random()*7);
 				var pipe = $('<div class="pipe"></div>')
 					.draggable({ revert: 'invalid' })
 					.attr('data-pipeType', id)
 					.css({ 'background-image': 'url("images/' + images[id].base + '")' });
+
+				if (freeze){ //If the freeze power is used, the pipes are hidden
+					pipe.css({ 'opacity': 0 });
+				}
 
 				$('#queue').prepend(pipe);
 				return pipe;
@@ -210,37 +295,86 @@
 
 			function getBottom (pipe) {
 				return pipe.parent().next().children().eq(pipe.index()).filter('.pipe, .end, .start, .slot');
-			};			
+			};
 
-	  		$('.slot').droppable({
-				drop: function( event, ui ) {
-					var index = $(this).index();
-					$('#board .row').each(function() { $(this).children().eq(index).removeClass('over'); });
-					$(this).siblings().each(function() { $(this).removeClass('over'); });
+			function makeSlot () {
+				var slot = $('<div class="slot"></div>');
 
-					var pipe = ui.draggable;
-					if(this.classList.contains('star')){
-						pipe.addClass('star');
+				slot.droppable({
+					drop: function( event, ui ) {
+						var index = $(this).index();
+						$('#board .row').each(function() { $(this).children().eq(index).removeClass('over'); });
+						$(this).siblings().each(function() { $(this).removeClass('over'); });
+
+						var pipe = ui.draggable;
+						if(this.classList.contains('star')){
+							pipe.addClass('star');
+						}
+
+						pipe.click(function(){
+							if(boomstate){
+								boomstate = false;
+
+								var newSlot = makeSlot();
+
+								if(this.classList.contains('star')){
+									newSlot.addClass('star');
+								}
+
+								$(this).replaceWith(newSlot);
+
+								tilesPlaced--;
+							}
+						});
+
+						$(this).replaceWith(pipe);
+						pipe.draggable('destroy');
+						pipe.css({ 'position': '', 'left': '', 'top': '' });
+
+						pipe = makePipe();
+						pipe.hide().slideDown();
+
+						tilesPlaced++;
+
+						displayScore();
+						start();
+					},
+					over: function( event, ui ) {
+						var index = $(this).index();
+						$('#board .row').each(function() { $(this).children().eq(index).addClass('over'); });
+						$(this).siblings().each(function() { $(this).addClass('over'); });
+					},
+					out: function( event, ui ) {
+						var index = $(this).index();
+						$('#board .row').each(function() { $(this).children().eq(index).removeClass('over'); });
+						$(this).siblings().each(function() { $(this).removeClass('over'); });
 					}
-					$(this).replaceWith(pipe);
-					pipe.draggable('destroy');
-					pipe.css({ 'position': '', 'left': '', 'top': '' });
+				});
 
-					pipe = makePipe();
-					pipe.hide().slideDown();
+				return slot;
+			}
 
-					displayScore();
-					start();
-				},
-				over: function( event, ui ) {
-					var index = $(this).index();
-					$('#board .row').each(function() { $(this).children().eq(index).addClass('over'); });
-					$(this).siblings().each(function() { $(this).addClass('over'); });
-				},
-				out: function( event, ui ) {
-					var index = $(this).index();
-					$('#board .row').each(function() { $(this).children().eq(index).removeClass('over'); });
-					$(this).siblings().each(function() { $(this).removeClass('over'); });
+			$("#freeze").click(
+				function() { freezePU(); }
+			);
+
+			$("#reQueue").click(
+				function() { reQ(); }
+			);
+
+			$("#boom").click(
+				function() { boomstate = true; }
+			);
+
+			$('#exitLevel').click(function(){
+				//TODO : Build exit function
+			});
+
+			$('.slot').replaceWith(function(){
+				if (this.classList.contains('star')) {
+					return makeSlot().addClass('star');
+				} else {
+					return makeSlot();
 				}
 			});
 
@@ -250,12 +384,17 @@
 				var next = getRight($('#board .row .start').first());
 				var direction = 'e';
 
+				calculateScore();
+
 				while (next.is('.pipe')) {
 					var id = next.attr('data-pipeType');
 					if (direction in connections[id]) {
 						var flow = parseFloat(next.attr('data-flow-' + direction) || 0);
-						flow = Math.min(flow + (0.3 / fps), 1);
-						next.attr('data-flow-' + direction, flow);
+						flow = Math.min(flow + (1.0 / fps)*(1.0/7.0), 1);
+
+						if(!freeze) {
+							next.attr('data-flow-' + direction, flow);
+						}
 
 						var ns = ['n', 's'].indexOf(direction) > -1;
 						var both = ((next.attr('data-flow-' + (ns ? 'e' : 'n')) == 1)
@@ -328,7 +467,7 @@
 
 			#score {
 				height: 20px;
-				width: 80px;
+				width: 120px;
 				background-color: #000000;
 				color: #FFFFFF;
 			}
@@ -340,8 +479,36 @@
 				background-color: #caa;
 			}
 
-			.slot.star {
-				background-color: yellow;
+			#freeze {
+				float: left;
+				height: 70px;
+				width: 70px;
+				background-color: #00AAAA;
+			}
+
+			#boom {
+				float: left;
+				height: 70px;
+				width: 70px;
+				background-color: #AA00AA;
+			}
+
+			#reQueue {
+				float: left;
+				height: 70px;
+				width: 70px;
+				background-color: #0000AA;
+			}
+
+			#exitLevel {
+				float: left;
+				height: 70px;
+				width: 70px;
+				background-color: #00AA00;
+			}
+
+			.star:before {
+				content: url('images/Star.png');
 			}
 
 			.grid .row {
@@ -472,5 +639,9 @@
 			</div>
 		</div>
 		<div id="guard"></div>
+		<div id="freeze">Freeze</div>
+		<div id="boom">Boom</div>
+		<div id="reQueue">ReQ</div>
+		<div id="exitLevel">Quit</div>
 	</body>
 </html>
